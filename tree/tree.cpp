@@ -2,6 +2,7 @@
 using namespace std;
 
 #define pb push_back
+#define epsilon 0.001
 
 // vector<vector<string> > datalabels;
 vector<vector<int> > dataX;
@@ -17,15 +18,21 @@ vector<vector<int> > categories{{0, 1}, {1, 2}, {0, 6}, {0, 3},
 								 {0,1}, {0,1}, {0,1}, {0,1}, 
 								 {0,1}, {0,1}, {0,1}};
 
+double infoGain(vector<vector<int> > X, vector<int> Y, int attr);
 
 class node{
 	public:
 		int positive;
 		int negative;
+		int total;
+		int majority;
 		bool isLeaf;
 		int attrnum;
+		int numchilds;
 		vector<node*> childs;
-		node();
+		
+		//Constructor
+		node(int positive1, int negative1, int total1, int majority1, bool leaf, int attribute, int numchilds1);
 };
 
 
@@ -35,11 +42,15 @@ class tree{
 		tree();
 };
 
-node::node(){
-	positive=0;
-	negative=0;
-	isLeaf=false;
-	attrnum=0;
+node::node(int positive1, int negative1, int total1, int majority1, bool leaf, int attribute, int numchilds1){
+	positive = positive1;
+	negative = negative1;
+	total = total1;
+	majority = majority1;
+	isLeaf = leaf;
+	attrnum = attribute;
+	numchilds = numchilds1;
+	childs.pb(NULL);
 }
 
 tree::tree(){
@@ -104,7 +115,54 @@ void readdata(string name){
 	// }
 }
 
-void growTree(){
+node growTree(vector<vector<int> > X, vector<int> Y, vector<int> attributes){
+	int positive = 0;
+	int negative = 0;
+	int total = 0;
+	for(int i=0;i<Y.size();i++){
+		if(Y[i]==1) positive++;
+		else negative++;
+	}
+	total = positive+negative;
+
+	int majority = (positive>=negative) ? 1 : 0;
+
+	if((positive/total) < epsilon){ node temp(positive, negative, total, majority, true, -1, 0); return temp; }
+	else if((negative/total) < epsilon) { node temp(positive, negative, total, majority, true, -1, 0); return temp; }
+	else{
+		double max = INT_MIN;
+		int max_index;
+		double tempnum;
+		for(int i=0; i<attributes.size(); i++){
+			tempnum = infoGain(X, Y, attributes[i]);
+			if(tempnum > max){
+				max = tempnum;
+				max_index = i;
+			}
+		}
+		// vector<int> new_attributes = attributes;
+		int startval = categories[attributes[max_index]][0];
+		int endval = categories[attributes[max_index]][1];
+		int totalcategories = endval - startval + 1;
+		vector<int> possiblevals;
+		for(int i=0;i<totalcategories;i++) possiblevals.pb(startval+i);
+	
+		attributes.erase(attributes.begin() + max_index);
+	
+		node temp(positive, negative, total, majority, false, attributes[max_index], totalcategories);
+	
+		for(int i=0; i< possiblevals.size(); i++){
+			vector<vector<int> > tempX;
+			vector<int> tempY;
+			for(int j=0;j< X.size(); j++){
+				if(X[j][attributes[max_index]]==possiblevals[i]) tempX.pb(X[j]); tempY.pb(Y[j]);
+					node tempo = growTree(tempX, tempY, attributes);
+					temp.childs.pb(&tempo); 
+			}
+		}
+
+		return temp;
+	}
 
 }
 
@@ -155,14 +213,13 @@ double infoGain(vector<vector<int> > X, vector<int> Y, int attr){
 		cond_entropy = entropy(positive, negative);
 		total = positive + negative;
 		probab = total/initial_total;
-		conditional_entropy+=entropy*probab;
+		conditional_entropy += (cond_entropy*probab);
 
 	}
 
 	double information = initial_entropy - conditional_entropy;
 	return information;
 }
-
 
 int main(){
 	readdata("test.csv");
