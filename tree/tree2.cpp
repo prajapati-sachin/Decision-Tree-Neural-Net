@@ -2,7 +2,7 @@
 using namespace std;
 
 #define pb push_back
-#define epsilon 0.05
+#define epsilon 0.01
 
 // vector<vector<string> > datalabels;
 vector<vector<int> > dataX;
@@ -14,6 +14,7 @@ vector<int> testY;
 vector<vector<int> > valX;
 vector<int> valY;
 
+int median;
 
 // static int count1=0;
 
@@ -99,7 +100,7 @@ tree::tree(){
 
 void preprocessingtrain(){
 	vector<float> temp;
-	int median;
+	// int median;
 	int size;
 	for(int i=0;i<continous.size();i++){
 		temp.clear();
@@ -120,17 +121,17 @@ void preprocessingtrain(){
 
 void preprocessingtest(){
 	vector<float> temp;
-	int median;
+	// int median;
 	int size;
 	for(int i=0;i<continous.size();i++){
-		temp.clear();
-		for(int j=0;j<testX.size();j++){
-			temp.pb(testX[j][continous[i]]);
-		}
-		size=temp.size();
-		sort(temp.begin(), temp.end());
-		if(temp.size()%2==0) median = (temp[size/2]+temp[(size/2)-1])/2; 
-		else median = temp[size/2];
+		// temp.clear();
+		// for(int j=0;j<testX.size();j++){
+		// 	temp.pb(testX[j][continous[i]]);
+		// }
+		// size=temp.size();
+		// sort(temp.begin(), temp.end());
+		// if(temp.size()%2==0) median = (temp[size/2]+temp[(size/2)-1])/2; 
+		// else median = temp[size/2];
 		// cout << "median for: " << continous[i] << " = " << median << endl; 
 		for(int j=0;j<testX.size();j++){
 			if(testX[j][continous[i]]>median) testX[j][continous[i]]=1;
@@ -144,14 +145,14 @@ void preprocessingval(){
 	int median;
 	int size;
 	for(int i=0;i<continous.size();i++){
-		temp.clear();
-		for(int j=0;j<valX.size();j++){
-			temp.pb(valX[j][continous[i]]);
-		}
-		size=temp.size();
-		sort(temp.begin(), temp.end());
-		if(temp.size()%2==0) median = (temp[size/2]+temp[(size/2)-1])/2; 
-		else median = temp[size/2];
+		// temp.clear();
+		// for(int j=0;j<valX.size();j++){
+		// 	temp.pb(valX[j][continous[i]]);
+		// }
+		// size=temp.size();
+		// sort(temp.begin(), temp.end());
+		// if(temp.size()%2==0) median = (temp[size/2]+temp[(size/2)-1])/2; 
+		// else median = temp[size/2];
 		// cout << "median for: " << continous[i] << " = " << median << endl; 
 		for(int j=0;j<valX.size();j++){
 			if(valX[j][continous[i]]>median) valX[j][continous[i]]=1;
