@@ -35,7 +35,14 @@ class node{
 		vector<node*> childs;
 		
 		//Constructor
-		node(int positive1, int negative1, int total1, int majority1, bool leaf, int attribute, int numchilds1);
+		node(int positive1, int negative1, int total1, int majority1, bool leaf, int attribute);
+
+		node();
+
+		node(const node&);
+
+		//Add children
+		void addChild(node* c);
 };
 
 
@@ -45,15 +52,34 @@ class tree{
 		tree();
 };
 
-node::node(int positive1, int negative1, int total1, int majority1, bool leaf, int attribute, int numchilds1){
+node::node(int positive1, int negative1, int total1, int majority1, bool leaf, int attribute){
 	positive = positive1;
 	negative = negative1;
 	total = total1;
 	majority = majority1;
 	isLeaf = leaf;
 	attrnum = attribute;
-	numchilds = numchilds1;
-	childs.pb(NULL);
+	numchilds=0;
+}
+
+node::node(){
+
+}
+
+node::node(const node& n){
+	positive =  n.positive;
+	negative =  n.negative;
+	total =  n.total;
+	majority =  n.majority;
+	isLeaf =  n.isLeaf;
+	attrnum =  n.attrnum;
+	numchilds =  n.numchilds;
+	for(int i=0;i<n.childs.size();i++) childs.pb(n.childs[i]);
+}
+
+void node::addChild(node* c){
+	childs.pb(c);
+	numchilds++;
 }
 
 tree::tree(){
@@ -76,7 +102,7 @@ void preprocessing(){
 		else median = temp[size/2];
 		// cout << "median for: " << continous[i] << " = " << median << endl; 
 		for(int j=0;j<dataX.size();j++){
-			if(temp[j]>=median) dataX[j][continous[i]]=1;
+			if(dataX[j][continous[i]]>median) dataX[j][continous[i]]=1;
 			else dataX[j][continous[i]]=0;
 		}
 	}
@@ -90,7 +116,7 @@ void readdata(string name){
 	string line, temp, word;
 	int count=0;
 	while(fin>>temp){
-		// cout << temp << endl;
+		// endl <<		cout << temp << endl;
 		row.clear();
 		introw.clear();
 		stringstream s(temp);
@@ -118,7 +144,7 @@ void readdata(string name){
 	// }
 }
 
-node growTree(vector<vector<int> > X, vector<int> Y, vector<int> attributes, int count){
+node growTree(vector<vector<int> > X, vector<int> Y, vector<int> attributes){
 	int positive = 0;
 	int negative = 0;
 	int total = 0;
@@ -132,48 +158,54 @@ node growTree(vector<vector<int> > X, vector<int> Y, vector<int> attributes, int
 
 	int majority = (positive>=negative) ? 1 : 0;
 
-	if(probpos < epsilon){ node temp(positive, negative, total, majority, true, -1, 0);   return temp;}
-	else if(probneg < epsilon) { node temp(positive, negative, total, majority, true, -1, 0); return temp; }
+	if(probpos < epsilon){ node temp(positive, negative, total, majority, true, -1);   return temp;}
+	else if(probneg < epsilon) { node temp(positive, negative, total, majority, true, -1); return temp; }
+	else if(attributes.size()==0) { node temp(positive, negative, total, majority, true, -1); return temp; }
 	else{
-		cout << "Here" << endl;
 		double max = INT_MIN;
 		int max_index;
 		double tempnum;
 		for(int i=0; i<attributes.size(); i++){
 			tempnum = infoGain(X, Y, attributes[i]);
-			cout << tempnum << endl;
+			// cout << endl;
+			// cout << "Atrribute num " << attributes[i] <<" :" <<tempnum << endl;
 			if(tempnum > max){
 				max = tempnum;
 				max_index = i;
 			}
 		}
 		// cout << max_index << endl;
-		cout << attributes[max_index] << endl;
-		cout << attributes.size() << endl;
+		// cout << attributes[max_index] << endl;
+		// cout << attributes.size() << endl;
+
 		vector<int> new_attributes = attributes;
 		int startval = categories[attributes[max_index]][0];
 		int endval = categories[attributes[max_index]][1];
 		int totalcategories = endval - startval + 1;
 		vector<int> possiblevals;
 		for(int i=0;i<totalcategories;i++) possiblevals.pb(startval+i);
-		cout << "Possible vals size: "<<possiblevals.size()<< endl;
+		// cout << "Possible vals size: "<<possiblevals.size()<< endl;
 		new_attributes.erase(new_attributes.begin() + max_index);
 	
-		node temp(positive, negative, total, majority, false, attributes[max_index], totalcategories);
+		node temp(positive, negative, total, majority, false, attributes[max_index]);
 	
 		for(int i=0; i< possiblevals.size(); i++){
 			vector<vector<int> > tempX;
 			vector<int> tempY;
-			cout << "Checking for: " << possiblevals[i] << endl;
+			// cout << "Checking for: " << possiblevals[i] << endl;
 			for(int j=0;j< X.size(); j++){
 				if(X[j][attributes[max_index]]==possiblevals[i]){ tempX.pb(X[j]); tempY.pb(Y[j]);}
 			}
-			cout << "TempX: "<<tempY.size() << endl;
-			cout << "TempY: "<<tempX.size() << endl;
-			cout << "-----------------------" << endl ;
+			// cout << "TempX: "<<tempY.size() << endl;
+			// cout << "TempY: "<<tempX.size() << endl;
+			// cout << "-----------------------" << endl ;
+			if(tempX.size()==0) {continue;}
 
-			node tempo = growTree(tempX, tempY, new_attributes, count+1);
-			temp.childs.pb(&tempo); 
+			node* tempop = new node(growTree(tempX, tempY, new_attributes));
+
+			temp.addChild(tempop);			
+			// node tempo = growTree(tempX, tempY, new_attributes);
+			// temp.addChild(&tempo); 
 
 		}
 
@@ -214,7 +246,7 @@ double infoGain(vector<vector<int> > X, vector<int> Y, int attr){
 	// cout << negative << endl;
 	// cout << initial_total << endl;
 	double initial_entropy = entropy(positive, negative); 
-	// cout << initial_entropy << endl;
+	// cout <<"Initial Entropy for " << attr << ": " << initial_entropy << endl;
 	int startval = categories[attr][0];
 	int endval = categories[attr][1];
 	int totalcategories = endval-startval+1;
@@ -235,9 +267,9 @@ double infoGain(vector<vector<int> > X, vector<int> Y, int attr){
 		cond_entropy = 0;
 		probab = 0;
 
-		for(int j=0;j<dataX.size();j++){
-			if(dataX[j][attr]==possiblevals[i]){
-				if(dataY[j]==1) positive++;
+		for(int j=0;j<X.size();j++){
+			if(X[j][attr]==possiblevals[i]){
+				if(Y[j]==1) positive++;
 				else negative++;
 			}
 		}
@@ -245,25 +277,55 @@ double infoGain(vector<vector<int> > X, vector<int> Y, int attr){
 		// if(total==0){
 		// 	cout << "attribute: " << attr << endl;
 		// 	cout << "value: " << possiblevals[i] << endl;
-		// 	cout << "positive: " << positive << endl;
-		// 	cout << "negative: " << negative << endl;
  	// 	}
+			// cout << "positive: " << positive << endl;
+			// cout << "negative: " << negative << endl;
+
 		cond_entropy = entropy(positive, negative);
-		probab = total*(1.0)/initial_total;
+		probab = (double)total/(double)initial_total;
+		// cout << "Total: "<<total << " Initial Total: " << initial_total << endl;
+		// cout << "Child " << possiblevals[i] << ": " << probab << endl;
+		// cout << "Child " << possiblevals[i] << ": " << cond_entropy << endl;
 		conditional_entropy += (cond_entropy*probab);
 
 	}
 
+	// cout << "Conditional Entropy for " << attr << ": " << conditional_entropy << endl;
 	double information = initial_entropy - conditional_entropy;
 	return information;
 }
+
+int numnodes(node* t){
+	int temp=t->numchilds;
+	for(int i=0;i<t->childs.size();i++){
+		temp+=numnodes(t->childs[i]);
+	}
+	return temp;
+}
+
 
 int main(){
 	readdata("train.csv");
 	preprocessing();
 	vector<int> attrs;
 	for(int i=0;i<23;i++) attrs.pb(i);
-	node root = growTree(dataX, dataY, attrs, 0);
+	node root = growTree(dataX, dataY, attrs);
+	
+	// int pos=0;
+	// int neg=0;
+	// for(int i=0;i<dataX.size();i++){
+	// 	// for(int j=0; j< dataX[i].size(); j++){
+	// 	// cout << dataX[i][j]<< " " ;
+	// 	if(dataX[i][5]==-2) {
+	// 		pos++;
+	// 		// if(dataY[i]==0)neg++;
+	// 		// else pos++;
+	// 	}
+	// 	// }
+	// 	// cout << endl;
+	// }
+
+	// cout << pos << "|"  <<endl;
 	// cout << infoGain(dataX, dataY, 0);
 	// cout << dataX.size() << endl;
 	// cout << dataX[20][22] << endl;
@@ -274,8 +336,22 @@ int main(){
 	// 	cout << endl;
 	// }
 
+	int totalnode=0;
+	// cout << "Root Attribute num: " << root.attrnum << endl;
 	// cout << root.numchilds << endl;
+	// cout << root.childs.size() << endl;
+
+	cout << numnodes(&root) << endl;
+
+	// for(int i=0; i<root.childs.size();i++){
+		// cout << "Child No. " << i << " -Attr num = " << root.childs[i]->attrnum << endl;	 
+		// cout << "Child No. " << i << " = " << root.childs[i] <<endl;	 
+	// }
 	// cout << root.attrnum << endl;
+
+
+	// cout << (root.childs[0])->numchilds << endl;
+	
 
 	return 0;
 }
