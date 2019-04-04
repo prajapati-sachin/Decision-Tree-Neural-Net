@@ -264,13 +264,15 @@ node growTree(vector<vector<int> > X, vector<int> Y, vector<int> attributes){
 	else{
 		double max = INT_MIN;
 		int max_index;
-		double tempnum;
+		int med;
+		pair<double, double> tempnum;
 		for(int i=0; i<attributes.size(); i++){
 			tempnum = infoGain(X, Y, attributes[i]);
 			// cout << endl;
 			// cout << "Atrribute num " << attributes[i] <<" :" <<tempnum << endl;
-			if(tempnum > max){
-				max = tempnum;
+			if(tempnum.first > max){
+				max = tempnum.first;
+				med = tempnum.second;
 				max_index = i;
 			}
 		}
@@ -337,7 +339,24 @@ double entropy(int positive, int negative){
 	return ent;
 }
 
-double infoGain(vector<vector<int> > X, vector<int> Y, int attr){
+pair<double, double> infoGain(vector<vector<int> > X, vector<int> Y, int attr){
+	vector<int> temp;
+	int med=-1;
+	if(find(continous.begin(), continous.end(), attr) != continous.end()){		
+		for(int j=0;j<X.size();j++){
+			temp.pb(X[j][attr]);
+		}
+		size = temp.size();
+		sort(temp.begin(), temp.end());
+		if(temp.size()%2==0) med = (temp[size/2]+temp[(size/2)-1])/2; 
+		else med = temp[size/2];
+		// cout << "median for: " << continous[i] << " = " << median << endl; 
+		for(int j=0;j<X.size();j++){
+			if(X[j][attr]>med) X[j][attr]=1;
+			else X[j][attr]=0;
+		}
+	}
+
 	int positive = 0;
 	int negative = 0;
 	int initial_total = 0;
@@ -396,7 +415,7 @@ double infoGain(vector<vector<int> > X, vector<int> Y, int attr){
 
 	// cout << "Conditional Entropy for " << attr << ": " << conditional_entropy << endl;
 	double information = initial_entropy - conditional_entropy;
-	return information;
+	return make_pair(information, med);
 }
 
 int numnodes(node* t){
