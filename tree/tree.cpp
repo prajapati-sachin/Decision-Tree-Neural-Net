@@ -495,9 +495,23 @@ int main(){
 		if(prediction(&root, testX[i])==testY[i]) count++;
 	}
 
-	cout << "Acc: "<< (double)count/(double)testY.size() << endl;
+	cout << "Accuracy on test: "<< (double)count/(double)testY.size() << endl;
 
+	predictedTest.clear();
+	count=0;
+	for(int i=0;i<valX.size();i++){
+		if(prediction(&root, valX[i])==valY[i]) count++;
+	}
 
+	cout << "Accuracy on validation: "<< (double)count/(double)valY.size() << endl;
+
+	predictedTest.clear();
+	count=0;
+	for(int i=0;i<dataX.size();i++){
+		if(prediction(&root, dataX[i])==dataY[i]) count++;
+	}
+
+	cout << "Accuracy on accuracy: "<< (double)count/(double)dataY.size() << endl;
 
 
 	return 0;
