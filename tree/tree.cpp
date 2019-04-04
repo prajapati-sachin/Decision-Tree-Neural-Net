@@ -7,6 +7,14 @@ using namespace std;
 // vector<vector<string> > datalabels;
 vector<vector<int> > dataX;
 vector<int> dataY;
+
+vector<vector<int> > testX;
+vector<int> testY;
+
+vector<vector<int> > valX;
+vector<int> valY;
+
+
 // static int count1=0;
 
 
@@ -37,8 +45,10 @@ class node{
 		//Constructor
 		node(int positive1, int negative1, int total1, int majority1, bool leaf, int attribute);
 
+		//Empty Constructor
 		node();
 
+		//Copy constructor
 		node(const node&);
 
 		//Add children
@@ -87,7 +97,7 @@ tree::tree(){
 }
 
 
-void preprocessing(){
+void preprocessingtrain(){
 	vector<float> temp;
 	int median;
 	int size;
@@ -108,7 +118,49 @@ void preprocessing(){
 	}
 }
 
-void readdata(string name){
+void preprocessingtest(){
+	vector<float> temp;
+	int median;
+	int size;
+	for(int i=0;i<continous.size();i++){
+		temp.clear();
+		for(int j=0;j<testX.size();j++){
+			temp.pb(testX[j][continous[i]]);
+		}
+		size=temp.size();
+		sort(temp.begin(), temp.end());
+		if(temp.size()%2==0) median = (temp[size/2]+temp[(size/2)-1])/2; 
+		else median = temp[size/2];
+		// cout << "median for: " << continous[i] << " = " << median << endl; 
+		for(int j=0;j<testX.size();j++){
+			if(testX[j][continous[i]]>median) testX[j][continous[i]]=1;
+			else testX[j][continous[i]]=0;
+		}
+	}
+}
+
+void preprocessingval(){
+	vector<float> temp;
+	int median;
+	int size;
+	for(int i=0;i<continous.size();i++){
+		temp.clear();
+		for(int j=0;j<valX.size();j++){
+			temp.pb(valX[j][continous[i]]);
+		}
+		size=temp.size();
+		sort(temp.begin(), temp.end());
+		if(temp.size()%2==0) median = (temp[size/2]+temp[(size/2)-1])/2; 
+		else median = temp[size/2];
+		// cout << "median for: " << continous[i] << " = " << median << endl; 
+		for(int j=0;j<valX.size();j++){
+			if(valX[j][continous[i]]>median) valX[j][continous[i]]=1;
+			else valX[j][continous[i]]=0;
+		}
+	}
+}
+
+void readtraindata(string name){
 	fstream fin;
 	fin.open(name, ios::in); 
 	vector<string> row;
@@ -134,16 +186,63 @@ void readdata(string name){
 		}
 		count++;			
 	}
-	// vector<vector<int> > dataXT;
-	// for(int i=0;i<24;i++){
-	// 	introw.clear();
-	// 	for(int j=0;j<dataX.size;j++){
-	// 		introw.pb(dataX[j][i]);
-	// 	}
-	// 	dataXT.pb(introw)
-	// }
 }
 
+void readtestdata(string name){
+	fstream fin;
+	fin.open(name, ios::in); 
+	vector<string> row;
+	vector<int> introw;
+	string line, temp, word;
+	int count=0;
+	while(fin>>temp){
+		// endl <<		cout << temp << endl;
+		row.clear();
+		introw.clear();
+		stringstream s(temp);
+		for(int i=0;i<=24;i++){
+			getline(s, word, ',');
+			row.pb(word);
+		}
+		if(count>=5){
+			for(int i=1;i<=23;i++){
+				// cout << row[i] << endl;
+				introw.pb(stoi(row[i]));
+			}
+			testX.pb(introw);
+			testY.pb(stoi(row[24]));
+		}
+		count++;			
+	}
+}
+
+void readvaldata(string name){
+	fstream fin;
+	fin.open(name, ios::in); 
+	vector<string> row;
+	vector<int> introw;
+	string line, temp, word;
+	int count=0;
+	while(fin>>temp){
+		// endl <<		cout << temp << endl;
+		row.clear();
+		introw.clear();
+		stringstream s(temp);
+		for(int i=0;i<=24;i++){
+			getline(s, word, ',');
+			row.pb(word);
+		}
+		if(count>=5){
+			for(int i=1;i<=23;i++){
+				// cout << row[i] << endl;
+				introw.pb(stoi(row[i]));
+			}
+			valX.pb(introw);
+			valY.pb(stoi(row[24]));
+		}
+		count++;			
+	}
+}
 node growTree(vector<vector<int> > X, vector<int> Y, vector<int> attributes){
 	int positive = 0;
 	int negative = 0;
@@ -199,10 +298,14 @@ node growTree(vector<vector<int> > X, vector<int> Y, vector<int> attributes){
 			// cout << "TempX: "<<tempY.size() << endl;
 			// cout << "TempY: "<<tempX.size() << endl;
 			// cout << "-----------------------" << endl ;
-			if(tempX.size()==0) {continue;}
-
-			node* tempop = new node(growTree(tempX, tempY, new_attributes));
-
+			node* tempop;
+			if(tempX.size()==0) {
+				tempop = new node(0, 0, 0, -1, true, -1);
+				// continue;
+			}
+			else{
+				tempop = new node(growTree(tempX, tempY, new_attributes));
+			}
 			temp.addChild(tempop);			
 			// node tempo = growTree(tempX, tempY, new_attributes);
 			// temp.addChild(&tempo); 
@@ -296,17 +399,51 @@ double infoGain(vector<vector<int> > X, vector<int> Y, int attr){
 }
 
 int numnodes(node* t){
-	int temp=t->numchilds;
+	int temp=1;
 	for(int i=0;i<t->childs.size();i++){
 		temp+=numnodes(t->childs[i]);
 	}
 	return temp;
 }
 
+int getIndex(int attri, int attrival){
+	// int result=-1;
+	int startval = categories[attri][0];
+	int endval = categories[attri][1];
+	int totalcategories = endval-startval+1;
+	vector<int> possiblevals;
+	for(int i=0;i<totalcategories;i++){
+		if((startval+i)==attrival){return i;}
+	}
+
+}
+
+int prediction(node* root, vector<int> test){
+	// cout << "Gadbad" << endl;
+	node* temp = root;
+	int attri;
+	int attrival;
+	int childindex;
+	while(temp->isLeaf != true){
+		attri = temp->attrnum;
+		attrival =  test[attri];
+		// cout << "Attribute num: " << attri << " | Atrribute Value: " << attrival << endl;
+		childindex = getIndex(attri, attrival);
+		// if(childindex>=temp->numchilds);
+		temp = temp->childs[childindex];
+	}
+
+	return temp->majority;
+}
+
 
 int main(){
-	readdata("train.csv");
-	preprocessing();
+	readtraindata("train.csv");
+	readtestdata("test.csv");
+	readvaldata("val.csv");
+	preprocessingtrain();
+	preprocessingtest();
+	preprocessingval();
 	vector<int> attrs;
 	for(int i=0;i<23;i++) attrs.pb(i);
 	node root = growTree(dataX, dataY, attrs);
@@ -344,14 +481,24 @@ int main(){
 	cout << numnodes(&root) << endl;
 
 	// for(int i=0; i<root.childs.size();i++){
-		// cout << "Child No. " << i << " -Attr num = " << root.childs[i]->attrnum << endl;	 
-		// cout << "Child No. " << i << " = " << root.childs[i] <<endl;	 
+	// 	cout << "Child No. " << i << " -Attr num = " << root.childs[i]->attrnum << endl;	 
+	// 	// cout << "Child No. " << i << " = " << (root.childs[i])->majority <<endl;	 
 	// }
 	// cout << root.attrnum << endl;
 
 
 	// cout << (root.childs[0])->numchilds << endl;
 	
+	vector<int> predictedTest;
+	int count=0;
+	for(int i=0;i<testX.size();i++){
+		if(prediction(&root, testX[i])==testY[i]) count++;
+	}
+
+	cout << "Acc: "<< (double)count/(double)testY.size() << endl;
+
+
+
 
 	return 0;
 }
