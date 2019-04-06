@@ -4,6 +4,7 @@ import sys
 import csv
 from sklearn.preprocessing import OneHotEncoder
 from random import shuffle
+from sklearn.metrics import confusion_matrix
 
 
 Xtrain = []
@@ -275,13 +276,13 @@ def oneEpoch():
 
 prevloss = 0
 
-for i in range(500):
+for i in range(1000):
 	los = oneEpoch()
 	print("Epoch: ", i, " Loss: ", los)	
 	if(abs(los-prevloss)<1e-4):
 		print("Rate Reduced")
 		rate=rate/5
-	if(abs(los-prevloss)<1e-7):
+	if(abs(los-prevloss)<1e-8):
 		break
 	prevloss = los
 	# if(i%10==0):
@@ -291,6 +292,8 @@ for i in range(500):
 # # prediction = a.tolist(testing(Xtest))
 
 Ytest = np.array(Ytest)
+Ypred_test = testing(Xtest)
+
 
 # # a = np.array([0,0,1,1,1])   # actual labels
 # # b = np.array([1,1,0,0,1])   # predicted labels
@@ -301,6 +304,7 @@ accuracy = correct.sum() / correct.size
 print("Accuracy on Test: ", accuracy)
 
 Ytrain = np.array(Ytrain)
+Ypred_train = testing(Xtrain)
 
 correct = (testing(Xtrain) == Ytrain)
 accuracy = correct.sum() / correct.size
@@ -309,3 +313,5 @@ print("Accuracy on Train: ", accuracy)
 
 # print( np.sum((error((Xtrain[0:3].reshape(3, 85)), Ytrain[0:3])), axis=0) )
 # print(error((Xtrain[0:3].reshape(3, 85)), Ytrain[0:3]))
+confusion = confusion_matrix(Ytest, Ypred_test)
+print(confusion)
