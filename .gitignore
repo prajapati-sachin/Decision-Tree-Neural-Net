@@ -1,0 +1,5 @@
+data
+neural/testhot.data
+neural/trainhot.data
+neural/train.data
+neural/test.data
