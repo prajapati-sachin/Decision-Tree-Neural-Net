@@ -33,18 +33,19 @@ with open(train) as fileX:
 
 
 
-# with open(test) as fileX:
-# 	x_reader = csv.reader(fileX)
-# 	for row in x_reader:
-# 		temp = []
-# 		for i in range(10):
-# 			temp.append(float(row[i]))
-# 		Xtest.append(temp)
-# 		Ytest.append(int(row[10]))
+with open(test) as fileX:
+	x_reader = csv.reader(fileX)
+	for row in x_reader:
+		temp = []
+		for i in range(10):
+			temp.append(float(row[i]))
+		Xtest.append(temp)
+		Ytest.append(int(row[10]))
 
 
 enc = OneHotEncoder(handle_unknown='ignore')
 Xtrain = enc.fit_transform(Xtrain).toarray()
+Xtest = enc.fit_transform(Xtest).toarray()
 
 
 ####################################################
@@ -78,7 +79,7 @@ def sigmoid(x):
 
 def stable_softmax(X):
     exps = np.exp(X - np.max(X, axis=0, keepdims=True))
-    return exps / np.sum(exps, axis=0)
+    return exps / np.sum(exps, axis=0, keepdims=True)
 
 def EncodeY(y):
 	temp = [0]*10
@@ -95,11 +96,11 @@ def forwardpass(X):
 			# temp1 = np.exp((Weights[i].dot(temp)) + np.repeat(Bias[i], examples, axis=1))			
 			# sum1 = np.sum(temp1, axis=0)
 			# temp = np.true_divide(temp1, sum1)
-			temp = stable_softmax((Weights[i].dot(temp)) + np.repeat(Bias[i], examples, axis=1))
+			temp = stable_softmax((Weights[i].dot(temp)) + np.tile(Bias[i], examples))
 			Ojs.append(temp)
 			# print(np.sum(temp, axis=0))
 		else:
-			temp = sigmoid((Weights[i].dot(temp)) + np.repeat(Bias[i], examples, axis=1))
+			temp = sigmoid((Weights[i].dot(temp)) + np.tile(Bias[i], examples))
 			Ojs.append(temp)
 	return Ojs
 
@@ -113,6 +114,24 @@ def forwardpass(X):
 # x = np.repeat(x, 3, axis=1)
 
 # print(Xtrain.shape)
+
+def testing(X):
+	examples = X.shape[0]
+	# Oj = []
+	temp = X.transpose()
+	for i in range(len(layers)):
+		if(i==len(layers)-1):
+			# temp1 = np.exp((Weights[i].dot(temp)) + np.repeat(Bias[i], examples, axis=1))			
+			# sum1 = np.sum(temp1, axis=0)
+			# temp = np.true_divide(temp1, sum1)
+			temp = stable_softmax((Weights[i].dot(temp)) + np.tile(Bias[i], examples))
+			# Oj.append(temp)
+			# print(np.sum(temp, axis=0))
+		else:
+			temp = sigmoid((Weights[i].dot(temp)) + np.tile(Bias[i], examples))
+	# np.argmax(Oj, axis=0)
+	return np.argmax(temp, axis=0)
+
 
 def backwardpass(X, Y, Outputs):
 	examples = X.shape[0]
@@ -197,8 +216,20 @@ def oneEpoch():
 		temp = forwardpass((newX.reshape(batch, 85)))
 		(backwardpass((newX.reshape(batch, 85)), newY, temp))
 
+for i in range(500):
+	if(i%100==0):
+		print("Epoch: ", i)
+	oneEpoch()
 
-oneEpoch()
 
+# prediction = a.tolist(testing(Xtest))
 
+Ytest = np.array(Ytest)
 
+# a = np.array([0,0,1,1,1])   # actual labels
+# b = np.array([1,1,0,0,1])   # predicted labels
+
+correct = (testing(Xtest) == Ytest)
+accuracy = correct.sum() / correct.size
+
+print(accuracy)
