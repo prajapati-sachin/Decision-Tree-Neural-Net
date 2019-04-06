@@ -3,6 +3,8 @@ from sklearn import tree
 import sys
 import csv
 from sklearn.preprocessing import OneHotEncoder
+from random import shuffle
+
 
 Xtrain = []
 Ytrain = []
@@ -159,14 +161,44 @@ def backwardpass(X, Y, Outputs):
 	# return delJ
 
 
-oo = forwardpass((Xtrain[0:3].reshape(3, 85)))
+oo = forwardpass(Xtrain[0:3].reshape(3, 85))
+# (backwardpass((Xtrain[0:3].reshape(3, 85)), Ytrain[0:3], oo))
 
-(backwardpass((Xtrain[0:3].reshape(3, 85)), Ytrain[0:3], oo))
-
-
-
+# print((Ytrain[0:3]))
 
 
+def oneEpoch():
+# 	# c = list(zip(Xtrain, Ytrain))
+# 	# random.shuffle(c)
+# 	# a, b = zip(*c)
+# 	# print((a[0]))
+# 	# Given list1 and list2
+	a = []
+	b = []
+	index_shuf = list(range(Xtrain.shape[0]))
+	# index_shuf = list(range(5))
+	shuffle(index_shuf)
+	for i in index_shuf:
+	    a.append(Xtrain[i])
+	    b.append(Ytrain[i])
+# 	# indices = np.arange(Xtrain.shape[0])
+# 	# np.random.shuffle(indices)
+
+	# print((a[0]))
+	# print((b[0:3]))
+	# newY = np.array(b[(i*batch):(i*batch) + batch])
+	# print(newY)
+
+# 	# a = Xtrain[indices]
+# 	# b = Ytrain[indices]
+	for i in range(batch):
+		newX = np.array(a[(i*batch):(i*batch) + batch])
+		newY = (b[(i*batch):(i*batch) + batch])
+		temp = forwardpass((newX.reshape(batch, 85)))
+		(backwardpass((newX.reshape(batch, 85)), newY, temp))
+
+
+oneEpoch()
 
 
 
