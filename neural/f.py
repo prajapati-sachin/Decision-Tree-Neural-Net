@@ -59,7 +59,7 @@ activation = f[5].split()[0]
 learning = f[6].split()[0]
 
 file1.close() 
-rate = 0.1
+rate = 0.01
 
 # print(type(inputs))
 # print(type(outputs))
@@ -115,23 +115,33 @@ def EncodeY(y):
 	temp[y]=1
 	return temp
 
+def ReLU(x):
+	x[x<=0] = 0
+	x[x>0] = 1
+	return x
+
+
 def forwardpass(X):
 	examples = X.shape[0]
 	Ojs = []
+	Netjs = []
 	temp = X.transpose()
 	Ojs.append(temp)
+	Netjs.append(temp)
 	for i in range(len(layers)):
 		if(i==len(layers)-1):
 			# temp1 = np.exp((Weights[i].dot(temp)) + np.repeat(Bias[i], examples, axis=1))			
 			# sum1 = np.sum(temp1, axis=0)
 			# temp = np.true_divide(temp1, sum1)
+			Netjs.append((Weights[i].dot(temp)) + np.tile(Bias[i], examples))
 			temp = stable_softmax((Weights[i].dot(temp)) + np.tile(Bias[i], examples))
 			Ojs.append(temp)
 			# print(np.sum(temp, axis=0))
 		else:
+			Netjs.append((Weights[i].dot(temp)) + np.tile(Bias[i], examples))
 			temp = sigmoid((Weights[i].dot(temp)) + np.tile(Bias[i], examples))
 			Ojs.append(temp)
-	return Ojs
+	return Ojs, Netjs
 
 # print(Xtrain[0].reshape(1, 85))
 
@@ -162,7 +172,7 @@ def testing(X):
 	return np.argmax(temp, axis=0)
 
 
-def backwardpass(X, Y, Outputs):
+def backwardpass(X, Y, Outputs, Netjs):
 	examples = X.shape[0]
 	temp = X.transpose()
 	labels = []
@@ -184,7 +194,7 @@ def backwardpass(X, Y, Outputs):
 	for i in range(lastindex-2, -1, -1):
 		# print(delJ.shape)
 		units = layers[i]
-		tempW = ((Weights[i+1].transpose()).dot(delJ))*((Outputs[i+1]*(1-(Outputs[i+1]))))
+		tempW = ((Weights[i+1].transpose()).dot(delJ))*(ReLU(Netjs[i+1]))
 		delJ = tempW
 		# print(i, tempW.shape)
 		# print(i, Outputs[i].shape)
@@ -266,8 +276,8 @@ def oneEpoch():
 	for i in range(batch):
 		newX = np.array(a[(i*batch):(i*batch) + batch])
 		newY = (b[(i*batch):(i*batch) + batch])
-		temp = forwardpass((newX.reshape(batch, 85)))
-		(backwardpass((newX.reshape(batch, 85)), newY, temp))
+		temp1, temp2 = forwardpass((newX.reshape(batch, 85)))
+		(backwardpass((newX.reshape(batch, 85)), newY, temp1, temp2))
 
 	return error(np.array(a), b)
 
@@ -275,12 +285,13 @@ def oneEpoch():
 
 prevloss = 0
 
-for i in range(500):
+for i in range(1000):
 	los = oneEpoch()
 	print("Epoch: ", i, " Loss: ", los)	
 	if(abs(los-prevloss)<1e-4):
+		print("Rate Reduced")
 		rate=rate/5
-	if(abs(los-prevloss)<1e-7):
+	if(abs(los-prevloss)<1e-6):
 		break
 	prevloss = los
 	# if(i%10==0):
