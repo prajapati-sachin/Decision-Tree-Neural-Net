@@ -276,12 +276,20 @@ def oneEpoch():
 
 prevloss = 0
 
-for i in range(1000):
+ct = 0
+for i in range(500):
 	los = oneEpoch()
 	print("Epoch: ", i, " Loss: ", los)	
 	if(abs(los-prevloss)<1e-4):
-		print("Rate Reduced")
-		rate=rate/5
+		if(ct==0):
+			ct+=1
+		elif(ct==1):
+			print("Rate Reduced")
+			rate=rate/5
+			ct = 0
+	elif(ct==1):
+		ct=0
+	
 	if(abs(los-prevloss)<1e-8):
 		break
 	prevloss = los

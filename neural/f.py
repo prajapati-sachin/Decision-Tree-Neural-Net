@@ -60,7 +60,7 @@ activation = f[5].split()[0]
 learning = f[6].split()[0]
 
 file1.close() 
-rate = 0.001
+rate = 0.01
 
 # print(type(inputs))
 # print(type(outputs))
@@ -295,9 +295,9 @@ prevloss = 0
 for i in range(1000):
 	los = oneEpoch()
 	print("Epoch: ", i, " Loss: ", los)	
-	# if(abs(los-prevloss)<1e-4):
-	# 	print("Rate Reduced")
-	# 	rate=rate/5
+	if(abs(los-prevloss)<1e-4):
+		print("Rate Reduced")
+		rate=rate/5
 	if(abs(los-prevloss)<1e-8):
 		break
 	prevloss = los
