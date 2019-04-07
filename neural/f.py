@@ -60,7 +60,7 @@ activation = f[5].split()[0]
 learning = f[6].split()[0]
 
 file1.close() 
-rate = 0.01
+rate = 0.001
 
 # print(type(inputs))
 # print(type(outputs))
@@ -116,10 +116,16 @@ def EncodeY(y):
 	temp[y]=1
 	return temp
 
-def ReLU(x):
+def DReLU(x):
 	x[x<=0] = 0
 	x[x>0] = 1
 	return x
+
+def DReLUnew(x):
+	return np.where(x > (0), 1, 0)
+
+def ReLU(x):
+	return np.maximum(np.zeros(x.shape), x)
 
 
 def forwardpass(X):
@@ -140,7 +146,7 @@ def forwardpass(X):
 			# print(np.sum(temp, axis=0))
 		else:
 			Netjs.append((Weights[i].dot(temp)) + np.tile(Bias[i], examples))
-			temp = sigmoid((Weights[i].dot(temp)) + np.tile(Bias[i], examples))
+			temp = ReLU((Weights[i].dot(temp)) + np.tile(Bias[i], examples))
 			Ojs.append(temp)
 	return Ojs, Netjs
 
@@ -168,7 +174,7 @@ def testing(X):
 			# Oj.append(temp)
 			# print(np.sum(temp, axis=0))
 		else:
-			temp = sigmoid((Weights[i].dot(temp)) + np.tile(Bias[i], examples))
+			temp = ReLU((Weights[i].dot(temp)) + np.tile(Bias[i], examples))
 	# np.argmax(Oj, axis=0)
 	return np.argmax(temp, axis=0)
 
@@ -195,7 +201,7 @@ def backwardpass(X, Y, Outputs, Netjs):
 	for i in range(lastindex-2, -1, -1):
 		# print(delJ.shape)
 		units = layers[i]
-		tempW = ((Weights[i+1].transpose()).dot(delJ))*(ReLU(Netjs[i+1]))
+		tempW = ((Weights[i+1].transpose()).dot(delJ))*(DReLUnew(Netjs[i+1]))
 		delJ = tempW
 		# print(i, tempW.shape)
 		# print(i, Outputs[i].shape)
@@ -233,7 +239,7 @@ def error(X, Y):
 			# Oj.append(temp)
 			# print(np.sum(temp, axis=0))
 		else:
-			temp = sigmoid((Weights[i].dot(temp)) + np.tile(Bias[i], examples))
+			temp = ReLU((Weights[i].dot(temp)) + np.tile(Bias[i], examples))
 
 	# np.argmax(Oj, axis=0)
 	# return temp	
@@ -289,9 +295,9 @@ prevloss = 0
 for i in range(1000):
 	los = oneEpoch()
 	print("Epoch: ", i, " Loss: ", los)	
-	if(abs(los-prevloss)<1e-4):
-		print("Rate Reduced")
-		rate=rate/5
+	# if(abs(los-prevloss)<1e-4):
+	# 	print("Rate Reduced")
+	# 	rate=rate/5
 	if(abs(los-prevloss)<1e-8):
 		break
 	prevloss = los

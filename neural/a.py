@@ -19,8 +19,8 @@ Ytrain = []
 train = "train.data"
 test = "test.data"
 
-train_hot = "train_hot.data"
-test_hot = "test_hot.data"
+train_hot = "trainhot.data"
+test_hot = "testhot.data"
 
 Xtest = []
 Ytest = []

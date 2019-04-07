@@ -2,7 +2,7 @@
 using namespace std;
 
 #define pb push_back
-#define epsilon 0.001
+#define epsilon 0.2
 
 // vector<vector<string> > datalabels;
 vector<vector<int> > dataX;
@@ -300,7 +300,7 @@ node growTree(vector<vector<int> > X, vector<int> Y, vector<int> attributes){
 			// cout << "-----------------------" << endl ;
 			node* tempop;
 			if(tempX.size()==0) {
-				tempop = new node(0, 0, 0, -1, true, -1);
+				tempop = new node(0, 0, 0, majority, true, -1);
 				// continue;
 			}
 			else{

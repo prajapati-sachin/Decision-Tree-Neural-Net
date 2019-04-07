@@ -2,7 +2,7 @@
 using namespace std;
 
 #define pb push_back
-#define epsilon 0.2
+#define epsilon 0.01
 
 // vector<vector<string> > datalabels;
 vector<vector<int> > dataX;
@@ -247,6 +247,31 @@ void readvaldata(string name){
 		count++;			
 	}
 }
+
+bool checkdelete(vector<vector<int> > X, vector<int> Y, int attribute){
+	vector<int> temp;
+	for(int j=0;j<X.size();j++){
+		temp.pb(X[j][attribute]);
+	}
+	int size = temp.size();
+	int med;
+	sort(temp.begin(), temp.end());
+	if(size%2==0) med = (temp[size/2]+temp[(size/2)-1])/2; 
+	else med = temp[size/2];
+	int pos = 0; 
+	int neg = 0;
+	for(int j=0;j<X.size();j++){
+		if((X[j][attribute])>med) pos++;
+		else neg++;
+	}
+	// cout<<"pos "<<pos<<endl;
+	// cout<<"neg "<<neg<<endl;
+	if(pos>0 && neg>0) return false;
+	else return true;
+
+	
+}
+
 node growTree(vector<vector<int> > X, vector<int> Y, vector<int> attributes){
 	int positive = 0;
 	int negative = 0;
@@ -284,7 +309,7 @@ node growTree(vector<vector<int> > X, vector<int> Y, vector<int> attributes){
 		// cout << attributes[max_index] << endl;
 		// cout << attributes.size() << endl;
 
-		vector<int> new_attributes = attributes;
+		// vector<int> new_attributes = attributes;
 		int startval = categories[attributes[max_index]][0];
 		int endval = categories[attributes[max_index]][1];
 		int totalcategories = endval - startval + 1;
@@ -295,11 +320,13 @@ node growTree(vector<vector<int> > X, vector<int> Y, vector<int> attributes){
 		// bool todelete = 
 		node temp(positive, negative, total, majority, false, attributes[max_index], med);
 
-		new_attributes.erase(new_attributes.begin() + max_index);
+		// new_attributes.erase(new_attributes.begin() + max_index);
 	
 		for(int i=0; i< possiblevals.size(); i++){
 			vector<vector<int> > tempX;
 			vector<int> tempY;
+			vector<int> new_attributes = attributes;
+			
 			// cout << "Checking for: " << possiblevals[i] << endl;
 			if(find(continous.begin(), continous.end(), attributes[max_index]) != continous.end()){
 				if(i==1){
@@ -312,15 +339,28 @@ node growTree(vector<vector<int> > X, vector<int> Y, vector<int> attributes){
 						if(X[j][attributes[max_index]]<=med){ tempX.pb(X[j]); tempY.pb(Y[j]);}
 					}
 				}
+				
+				// new_attributes.erase(new_attributes.begin() + max_index);
+
+				if(tempX.size()!=0){
+					bool to_delete = checkdelete(tempX, tempY, attributes[max_index]);
+					// bool to_delete = true;
+					if(to_delete) new_attributes.erase(new_attributes.begin() + max_index);
+					// else cout << "Not delted" << endl;
+				}
 			}
 			else{
 				for(int j=0;j< X.size(); j++){
 					if(X[j][attributes[max_index]]==possiblevals[i]){ tempX.pb(X[j]); tempY.pb(Y[j]);}
 				}
+				new_attributes.erase(new_attributes.begin() + max_index);
 			}
 			// cout << "TempX: "<<tempY.size() << endl;
 			// cout << "TempY: "<<tempX.size() << endl;
 			// cout << "-----------------------" << endl ;
+
+
+
 
 			node* tempop;
 			if(tempX.size()==0) {
