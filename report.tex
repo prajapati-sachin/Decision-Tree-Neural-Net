@@ -1,0 +1,405 @@
+\documentclass[12pt,letterpaper]{article}
+\usepackage{fullpage}
+\usepackage[top=2cm, bottom=4.5cm, left=2.5cm, right=2.5cm]{geometry}
+\usepackage{amsmath,amsthm,amsfonts,amssymb,amscd}
+\usepackage{lastpage}
+\usepackage{enumerate}
+\usepackage{fancyhdr}
+\usepackage{mathrsfs}
+\usepackage{hyperref}
+\usepackage{biblatex}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage{tabu}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{hyperref}
+% \documentclass{article}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{float}
+\hypersetup{%
+  colorlinks=true,
+  linkcolor=blue,
+  linkbordercolor={0 0 1}
+}
+ 
+\renewcommand\lstlistingname{Algorithm}
+\renewcommand\lstlistlistingname{Algorithms}
+\def\lstlistingautorefname{Alg.}
+
+\lstdefinestyle{Python}{
+    language        = Python,
+    frame           = lines, 
+    basicstyle      = \footnotesize,
+    keywordstyle    = \color{blue},
+    stringstyle     = \color{green},
+    commentstyle    = \color{red}\ttfamily
+}
+
+\setlength{\parindent}{0.0in}
+\setlength{\parskip}{0.05in}
+
+% Edit these as appropriate
+% \newcommand\course{COL 380}
+\newcommand\hwnumber{2}                  % <-- homework number
+\newcommand\NetIDa{Sachin Kumar Prajapati}           % <-- NetID of person #1
+\newcommand\NetIDb{2016CS10355}           % <-- NetID of person #2 (Comment this line out for problem sets)
+
+\pagestyle{fancyplain}
+\headheight 35pt
+% line out for problem sets (make sure you are person #1)
+\rhead{\textbf{\Large COL774 Assignment-3 Report}}
+% \vspace{1cmNetIDa}
+\lhead{\NetIDa\\\NetIDb}                 % <-- Comment this 
+% \rhead{\course \\ \today}
+\lhead{\NetIDa\\\NetIDb\\Group-3}
+\lfoot{}
+\cfoot{}
+\rfoot{\small\thepage}
+\headsep 1.5em
+
+\begin{document}
+
+\section*{Q 1: Decision Trees}
+\subsection*{a) Accuracy over test and training set}
+\begin{itemize}
+    \item Used \textbf{multinomial event model} to implement Naive Bayes.
+    \item Removed punctuations before processing words.
+    \item Accuracy over test data: \textbf{60\%} 
+    \item Accuracy over training data: \textbf{66\%}
+\end{itemize}
+\subsection*{b) Accuracy using Random and Majority Prediction}
+\begin{itemize}
+    \item Accuracy using \textbf{Random Prediction}:  \textbf{16\%}
+    \item Accuracy using \textbf{Majority Prediction}(classify each as 5-star rating):  \textbf{43\%}
+    \item Accuracy using \textbf{Naive Bayes}: \textbf{60\%}
+\end{itemize}
+\subsection*{c) Confusion Matrix}
+\begin{itemize}
+    \item Confusion Matrix for test data:-
+    \begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{figure_1-1.png}
+    \end{figure}
+
+    \item The highest value of diagonal entry is for \textbf{5-star label}= \textbf{40,805}. This means that the prediction accuracy is highest for this label.
+    \item From confusion matrix we can see that for labels 1-star, 4-star and 5-star our models works fine as the diagonal entry is highest among all the predicted class. This may be because of more no. of training examples of these labels in training data. Whereas for 2-star and 3-star labels the accuracy is not that good because the words used in a 2-star or 3-star reviews are not that distinguishable as that of 1-star and 5-star as maximum no. of 2-stars and 3-stars examples are predicted to be 3-star and 4-stars respectively.
+\end{itemize}
+\subsection*{d) Stemming and Stopwords Removal}
+\begin{itemize}
+    \item Accuracy after \textbf{stemming and stopwords removal}: \textbf{59\%}
+    \item As observed, the value of accuracy decreases after stemming and stopwords removal, one reason of this could that stemming only looks at the form of word and not the context that is being used. For eg. the word "run" could be used in context of an event or a runnner and the word "running" could be used to denote the status of an activity. But stemming reduces both of these to the same word "run". 
+\end{itemize}
+\subsection*{e) Feature Engineering}
+\begin{itemize}
+    \item Accuracy after adding \textbf{bi-grams} as features: \textbf{62\%}
+    \item As without bi-grams accuracy was \textbf{60\%}, bi-grams could be used as feature. As more information about the review is used to predict its class label.
+    \item We could also make the all the words to lower-case before processing as till now a word in lower and upper case are treated separately.
+\end{itemize}
+\subsection*{f) F1-score}
+\begin{itemize}
+    \item \textbf{F1-score} of different label for best preforming model:-
+    \[
+      \text{F1-score}
+    =
+    \begin{bmatrix}
+        0.71984383 & 0.22386568 & 0.27518783 & 0.52549259 &  0.77998346 \\
+    \end{bmatrix}
+    \]
+    % F1-score = [ 0.71984383  0.22386568  0.27518783  0.52549259  0.77998346]
+    \item \textbf{Macro F1-score} = 0.504
+    \item Both test error or F1-score, give a estimation of how good our classifier is, but F1-score gives far more information as compared to, in addition to giving the estimate of the overall accuracy, it also gives an idea of accuracy of each class label. Values close to 1 show high accuracy. 
+\end{itemize}
+
+\subsection*{g) Training on full training dataset}
+\begin{itemize}
+    \item Accuracy on \textbf{full training dataset}:  70\ %
+    \item \textbf{F1-score} of different label after training on full train set:-
+    \[
+    \text{F1-score}
+    =
+    \begin{bmatrix}
+    0.74768992 & 0.47245201 & 0.55986857 & 0.63113819 & 0.81366409 \\
+    \end{bmatrix}
+    \]
+    % F1_score =[0.74768992 0.47245201 0.55986857 0.63113819 0.81366409]
+
+    \item \textbf{Macro F1-score using full training set} = 0.644
+\end{itemize}
+
+
+\section*{Q 2: Neural Networks}
+\subsection*{a) Transforming the data using One-Hot Encoding}
+    \begin{itemize}
+    \item Hot encoded the data using OneHotEncoder of sklearn library. Transformed data now contains 85 attributes.
+    \item Link to encoded data:- \\ \url{https://drive.google.com/open?id=1Miqnkq8Rae6Ov5V7tOjJd03IE_1NttOs}
+    \end{itemize}
+\subsection*{b) Generic Neural Network using Stochastic Gradient Descent (SGD)}
+    \begin{itemize}
+    \item Used Cross-Entropy as error metric.
+    \item Two Hidden Layers with \textbf{100} and \textbf{50} units each. Learning Rate is kept \textbf{0.1}.
+    \end{itemize}
+
+\subsection*{c) Neural Network with One hidden layer}
+    \begin{itemize}
+    \item Learning Rate is kept \textbf{0.1}.
+    \item \textbf{Stopping Criteria:} Cross-Entropy Loss is calculated after every epoch of training, and if the change in loss between two epochs is less then $10^{-8}$,  training is stopped.
+    % \end{itemize}
+    % \vspace{1cm}
+    \begin{tabu} to \textwidth {| X[c] | X[c] | X[c] | X[c] |}
+    \hline
+    \textbf{Hidden Layer Units} & \textbf{Test Accuracy} & \textbf{Train Accuracy} & \textbf{Training Time(sec)}\\
+    \hline
+     5  & 44.907 \%  & 49.836 \% & 50.72\\
+    \hline
+     10  & 63.083 \%  & 63.458 \% & 53.41\\
+    \hline
+     15  & 94.247 \%  & 95.305 \% & 73.77\\
+    \hline
+     20  & 94.534 \%  & 95.821 \%  & 115.31\\
+    \hline
+     25  & 91.988 \%  & 94.826 \%  & 131.12\\
+    \hline
+    \end{tabu}
+
+    \begin{figure}[H]
+    \centering
+    \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=1.4\textwidth]{b1g.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=1.4\textwidth]{b2g.png}
+    \end{minipage}
+    \end{figure}
+
+
+
+    \begin{figure}[H]
+    \centering
+    \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=1.4\textwidth]{b1.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=1.4\textwidth]{b2.png}
+    \end{minipage}
+    \end{figure}
+    
+    
+    \begin{figure}[H]
+    \centering
+    \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=10cm, height = 6cm]{b3.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=10cm, height = 6cm]{b4.png}
+    \end{minipage}
+    \end{figure}
+    
+    
+    \begin{figure}[H]
+    \centering
+    \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=1.4\textwidth]{b5.png}
+    \end{minipage}
+    \end{figure}
+    \item \textbf{Observations:} 
+    \end{itemize}
+        
+
+\subsection*{c) Neural Network with Two hidden layer}
+    \begin{itemize}
+    \item Learning Rate is kept \textbf{0.1}.
+    \item \textbf{Stopping Criteria:} Cross-Entropy Loss is calculated after every epoch of training, and if the change in loss between two epochs is less then $10^{-8}$,  training is stopped.
+    % \end{itemize}
+    \\
+    \\
+    \begin{tabu} to \textwidth {| X[c] | X[c] | X[c] | X[c] |}
+    \hline
+    \textbf{Hidden Layer Units(each layer)} & \textbf{Test Accuracy} & \textbf{Train Accuracy} & \textbf{Training Time(sec)}\\
+    \hline
+     5  & 56.400 \%  & 56.805 \% & 111.40\\
+    \hline
+     10  & 75.119 \%  & 76.729 \% & 133.23\\
+    \hline
+     15  & 89.992 \%  & 91.143 \% & 121.14\\
+    \hline
+     20  & 95.457 \%  & 96.805 \%  & 137.13\\
+    \hline
+     25  & 95.872 \%  & 98.180 \%  & 121.89\\
+    \hline
+    \end{tabu}
+
+    \begin{figure}[H]
+    \centering
+    \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=1.4\textwidth]{c1g.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=1.4\textwidth]{c2g.png}
+    \end{minipage}
+    \end{figure}
+
+
+
+    \begin{figure}[H]
+    \centering
+    \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=1.4\textwidth]{c1.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[scale=0.32]{c2.png}
+    \end{minipage}
+    \end{figure}
+    
+    
+    \begin{figure}[H]
+    \centering
+    \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=1.4\textwidth]{c3.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=1.4\textwidth]{c4.png}
+    \end{minipage}
+    \end{figure}
+    
+    
+    \begin{figure}[H]
+    \centering
+    \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=1.4\textwidth]{c5.png}
+    \end{minipage}
+    \end{figure}
+    \item \textbf{Observations:} 
+    \end{itemize}
+\subsection*{e) Neural Network with varying learning rate}
+    \begin{itemize}
+    \item Tolerance Value is kept \textbf{$10^{-4}$}.
+
+    \subsubsection*{\Rn{1}) One hidden layer}
+        \begin{tabu} to \textwidth {| X[c] | X[c] | X[c] | X[c] |}
+        \hline
+        \textbf{Hidden Layer Units(each layer)} & \textbf{Test Accuracy} & \textbf{Train Accuracy} & \textbf{Training Time(sec)}\\
+        \hline
+         5  & 52.939 \%  & 57.181\% & 62.46\\
+        \hline
+         10  & 63.791 \%  & 69.008\% & 63.10\\
+        \hline
+         15  & 68.548 \%  & 71.447\% & 67.30\\
+        \hline
+         20  & 88.348 \%  & 90.795\%  & 77.45\\
+        \hline
+         25  & 93.819 \%  & 95.641\%  & 79.56\\
+        \hline
+        \end{tabu}
+
+
+        \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.4]{e12g.png}
+        \end{figure}
+
+    
+        \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.4]{e1.png}
+        \end{figure}
+            
+    \subsubsection*{\Rn{2}) Two hidden layer}
+        \begin{tabu} to \textwidth {| X[c] | X[c] | X[c] | X[c] |}
+        \hline
+        \textbf{Hidden Layer Units(each layer)} & \textbf{Test Accuracy} & \textbf{Train Accuracy} & \textbf{Training Time(sec)}\\
+        \hline
+         5  & 66.868 \%  & 67.277 \% & 149.70\\
+        \hline
+         10  & 70.07 \%  & 70.879 \% & 67.36\\
+        \hline
+         15  & 84.574 \%  & 86.785 \% & 67.17\\
+        \hline
+         20  & 96.729 \%  & 97.421 \%  & 116.71\\
+        \hline
+         25  & 96.953 \%  & 98.268 \%  & 85.49\\
+        \hline
+        \end{tabu}
+        
+        
+        \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.4]{e21g.png}
+        \end{figure}
+
+    
+        \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.4]{e2.png}
+        \end{figure}
+    \item \textbf{Observations: }
+    \end{itemize}
+\subsection*{f) Neural Network with ReLU as activation function}
+        \begin{tabu} to \textwidth {| X[c] | X[c] | X[c] | X[c] |}
+        \hline
+        \textbf{Hidden Layer Units(One layer)} & \textbf{Test Accuracy} & \textbf{Train Accuracy} & \textbf{Training Time(sec)}\\
+        \hline
+         5  & 50.098 \%  &49.944 \% & 4.88\\
+        \hline
+     10  & 70.651 \%  &72.495 \% & 53.56\\
+        \hline
+         15  & 87.064 \%  &87.988 \% & 50.72\\
+        \hline
+         20  & 86.808 \%  &88.796 \%  & 63.30\\
+        \hline
+         25  & 92.903\%  & 94.946 \%  & 158.70\\
+        \hline
+        \end{tabu}
+        
+        \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.4]{f1g.png}
+        \end{figure}
+
+    
+        \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.4]{f1.png}
+        \end{figure}
+
+
+        \begin{itemize}
+        \item \textbf{Observations: }
+        \end{itemize}
+
+
+% \subsubsection*{d) Validation Accuracy}
+% \begin{tabu} to \textwidth { | X[c] | X[c] | X[c] | }
+%  \hline
+%  \textbf{Cost} & \textbf{Validation Accuracy} & \textbf{Accuracy(on test data)}\\
+%  \hline
+%  $10^{-5}$  & 8.79 \%  & 10.0 \%  \\
+% \hline
+%  $10^{-3}$  & 8.79 \%  & 10.0 \%  \\
+% \hline
+%  $1$  & 97.8 \%  & 99.71 \%  \\
+% \hline
+%  $5$  & 98 \%  & 99.8 \%  \\
+% \hline
+%  $10$  & 98 \%  & 99.8 \%  \\
+% \hline
+% \end{tabu}
+
+% \begin{figure}[H]
+% \centering
+% \includegraphics[scale=0.75]{validation.png}
+% \end{figure}
+% \begin{itemize}
+%     \item For low value of C's the accuracy achieved is very low. This is because as we have not added enough penalty for points being on wrong side. So, for the predicted separator there are many points which may lie on the wrong side of the separator.
+%     \item The maximum accuracy is achieved for C=5/10, the same value of C also gives maximum accuracy on test data.
+% \end{itemize}
+
+
+\end{document}
