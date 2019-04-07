@@ -9,8 +9,12 @@ Ytrain = []
 Xtest = []
 Ytest = []
 
+Xval = []
+Yval = []
+
 train = "train.csv"
 test = "test.csv"
+val = "val.csv"
 
 count = 0
 
@@ -45,6 +49,23 @@ with open(test) as fileX:
 			Ytest.append(int(row[24]))
 		# count+=1		
 
+count = 0
+with open(val) as fileX:
+	x_reader = csv.reader(fileX)
+	for row in x_reader:
+		# print(row)
+		temp = []
+		if(count<2):
+			count+=1
+			continue
+		else:
+			# print("done")
+			for i in range(1,24):
+				temp.append(float(row[i]))
+			Xval.append(temp)
+			Yval.append(int(row[24]))
+		# count+=1		
+
 
 # print((Xtrain[0]))
 # print((Ytrain[0]))
@@ -60,4 +81,23 @@ correct = (Ypred==Ytest)
 
 accuracy = correct.sum()/correct.size
 
-print(accuracy)
+print("Accuracy on test: ", accuracy)
+
+############################################
+Ypred = classify.predict(Xtrain)
+
+correct = (Ypred==Ytrain)
+
+accuracy = correct.sum()/correct.size
+
+print("Accuracy on train: ", accuracy)
+
+
+############################################
+Ypred = classify.predict(Xval)
+
+correct = (Ypred==Yval)
+
+accuracy = correct.sum()/correct.size
+
+print("Accuracy on validation: ", accuracy)
